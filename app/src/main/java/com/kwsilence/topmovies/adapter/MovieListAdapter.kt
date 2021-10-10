@@ -87,8 +87,6 @@ class MovieListAdapter(private val loadMoreMovie: Single<ArrayList<Movie>>) :
   private fun addData(movies: ArrayList<Movie>) {
     val last = itemCount - 1
     movieList.addAll(movies)
-//    notifyDataSetChanged()
     notifyItemRangeChanged(last, movies.size)
   }
-  // TODO seek end of list and load new
 }

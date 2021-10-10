@@ -6,10 +6,15 @@
   android:layout_height="match_parent"
   tools:context=".fragment.MovieListFragment">
 
-  <androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/movie_list"
+  <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    android:id="@+id/list_refresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+    android:layout_height="match_parent">
 
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/movie_list"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+  </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,14 +4,13 @@
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:clickable="true"
-  android:focusable="true"
-  android:padding="10sp">
+  android:focusable="true">
 
   <ProgressBar
     android:id="@+id/loading"
     android:layout_width="30sp"
     android:layout_height="30sp"
-    android:visibility="gone"
+    android:visibility="visible"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintLeft_toLeftOf="parent"
     app:layout_constraintRight_toRightOf="parent"
@@ -20,7 +19,9 @@
   <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/row_content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="10sp"
+    android:visibility="gone">
 
     <ImageView
       android:id="@+id/poster"

@@ -9,10 +9,6 @@ import androidx.navigation.fragment.navArgs
 import com.kwsilence.topmovies.databinding.FragmentMovieDetailBinding
 import com.kwsilence.topmovies.util.DateFormatter
 import com.kwsilence.topmovies.util.ImageLoader
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MovieDetailFragment : Fragment() {
 
@@ -32,12 +28,7 @@ class MovieDetailFragment : Fragment() {
     super.onViewCreated(view, savedInstanceState)
     val movie = args.movie
 
-    CoroutineScope(Dispatchers.IO).launch {
-      val img = ImageLoader.getImage(movie.posterPath)
-      withContext(Dispatchers.Main) {
-        binding.poster.setImageBitmap(img)
-      }
-    }
+    ImageLoader.setImage(binding.poster, movie.posterPath)
     binding.overview.text = movie.overview
     val progress: Double = movie.voteAverage * 10
     binding.rating.progress = progress.toFloat()

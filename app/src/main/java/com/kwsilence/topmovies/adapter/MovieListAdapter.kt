@@ -4,23 +4,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.kwsilence.topmovies.databinding.MovieRowBinding
 import com.kwsilence.topmovies.fragment.MovieListFragmentDirections
 import com.kwsilence.topmovies.model.Movie
+import com.kwsilence.topmovies.state.MovieListState
 import com.kwsilence.topmovies.util.DateFormatter
 import com.kwsilence.topmovies.util.ImageLoader
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-class MovieListAdapter(private val loadMoreMovie: Single<ArrayList<Movie>>) :
-  RecyclerView.Adapter<MovieListAdapter.MovieViewHolder>() {
+class MovieListAdapter() :
+  RecyclerView.Adapter<MovieListAdapter.MovieViewHolder>(), SwipeRefreshLayout.OnRefreshListener {
+  val listState = MutableLiveData<MovieListState>(MovieListState.Default)
   private var movieList = ArrayList<Movie>()
 
   class MovieViewHolder(val binding: MovieRowBinding) : RecyclerView.ViewHolder(binding.root)
@@ -41,12 +38,7 @@ class MovieListAdapter(private val loadMoreMovie: Single<ArrayList<Movie>>) :
       holder.binding.loading.visibility = View.GONE
       holder.binding.rowContent.visibility = View.VISIBLE
 
-      CoroutineScope(Dispatchers.IO).launch {
-        val img = ImageLoader.getImage(currentMovie.posterPath)
-        withContext(Dispatchers.Main) {
-          holder.binding.poster.setImageBitmap(img)
-        }
-      }
+      ImageLoader.setImage(holder.binding.poster, currentMovie.posterPath)
 
       holder.binding.overview.text = currentMovie.overview
       val progress: Double = currentMovie.voteAverage * 10
@@ -69,24 +61,30 @@ class MovieListAdapter(private val loadMoreMovie: Single<ArrayList<Movie>>) :
   override fun onViewAttachedToWindow(holder: MovieViewHolder) {
     super.onViewAttachedToWindow(holder)
     if (holder.layoutPosition >= movieList.size) {
-      loadMoreMovie.subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({ movies ->
-          addData(movies)
-        }, {
-          Log.e("TopMovies", "movieListAdapter: ${it.localizedMessage}")
-        })
+      Log.d("TopMovies", "load more!!!")
+      listState.value = MovieListState.LoadMore
+    } else {
+      if (listState.value is MovieListState.LoadMore) {
+        Log.d("TopMovies", "stop loading")
+        listState.value = MovieListState.Default
+      }
     }
   }
 
-  private fun setData(movies: ArrayList<Movie>) {
-    movieList = movies
-    notifyDataSetChanged()
+  fun changeData(movies: List<Movie>?) {
+    movies ?: return
+    if (listState.value is MovieListState.Refresh) {
+      movieList = ArrayList(movies)
+      listState.value = MovieListState.Default
+      notifyDataSetChanged()
+    } else {
+      val last = itemCount - 1
+      movieList.addAll(movies)
+      notifyItemRangeChanged(last, movies.size)
+    }
   }
 
-  private fun addData(movies: ArrayList<Movie>) {
-    val last = itemCount - 1
-    movieList.addAll(movies)
-    notifyItemRangeChanged(last, movies.size)
+  override fun onRefresh() {
+    listState.value = MovieListState.Refresh
   }
 }

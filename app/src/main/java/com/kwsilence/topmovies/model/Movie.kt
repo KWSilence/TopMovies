@@ -1,11 +1,15 @@
 package com.kwsilence.topmovies.model
 
 import android.os.Parcelable
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
+@Entity(tableName = "movie_table")
 data class Movie(
+  @PrimaryKey(autoGenerate = false)
   val id: Int,
   @SerializedName("original_language")
   val originalLang: String,
@@ -21,5 +25,7 @@ data class Movie(
   @SerializedName("vote_average")
   val voteAverage: Double,
   @SerializedName("vote_count")
-  val voteCount: Int
+  val voteCount: Int,
+
+  var page: Int
 ) : Parcelable

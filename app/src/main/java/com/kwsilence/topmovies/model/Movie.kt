@@ -8,6 +8,10 @@ import kotlinx.parcelize.Parcelize
 data class Movie(
   var id: Int,
   var backdrop_path: String?,
+  @SerializedName("original_language")
+  var originalLang: String,
+  @SerializedName("original_title")
+  var originalTitle: String,
   var overview: String,
   var popularity: Double,
   @SerializedName("poster_path")
@@ -17,4 +21,6 @@ data class Movie(
   var title: String,
   @SerializedName("vote_average")
   var voteAverage: Double,
+  @SerializedName("vote_count")
+  var voteCount: Int
 ) : Parcelable

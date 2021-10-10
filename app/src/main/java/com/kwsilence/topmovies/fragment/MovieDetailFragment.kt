@@ -44,6 +44,10 @@ class MovieDetailFragment : Fragment() {
     binding.ratingValue.text = progress.toInt().toString()
     binding.title.text = movie.title
     binding.release.text = DateFormatter.parse(movie.releaseDate)
+    binding.lang.text = movie.originalLang
+    binding.originalTitle.text = movie.originalTitle
+    binding.voteCount.text = movie.voteCount.toString()
+    binding.popularity.text = movie.popularity.toString()
 //    binding.scheduleButton.setOnClickListener {
 //      // TODO schedule
 //    }

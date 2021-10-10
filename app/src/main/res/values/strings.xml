@@ -7,4 +7,8 @@
   <string name="movie_poster_description">movie_poster</string>
   <string name="schedule_watching">schedule watching</string>
   <string name="movie_detail_fragment_label">Movie Detail</string>
+  <string name="detail_vote">Vote:</string>
+  <string name="detail_popularity">Popularity:</string>
+  <string name="detail_original_language">Original language:</string>
+  <string name="detail_original_title">Original title:</string>
 </resources>

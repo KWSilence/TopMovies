@@ -69,10 +69,15 @@ class MovieListViewModel(application: Application) : AndroidViewModel(applicatio
   }
 
   fun refreshMovie() {
-    viewModelScope.launch {
-      roomMovieRepository.deleteAllMovie()
-      page = 1
-      movies.value = ArrayList()
+    if (InternetChecker.checkInternetConnection()) {
+      viewModelScope.launch {
+        roomMovieRepository.deleteAllMovie()
+        page = 1
+        movies.value = ArrayList()
+      }
+    } else {
+      lossConnection.value = true
+      lossConnection.value = false
     }
   }
 

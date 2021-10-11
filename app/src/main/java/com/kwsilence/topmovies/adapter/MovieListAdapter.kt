@@ -50,9 +50,10 @@ class MovieListAdapter() :
         val action = MovieListFragmentDirections.letMovieDetail(currentMovie)
         holder.itemView.findNavController().navigate(action)
       }
-//    holder.binding.scheduleButton.setOnClickListener {
-//      // TODO schedule
-//    }
+      holder.binding.scheduleButton.setOnClickListener {
+        val action = MovieListFragmentDirections.listToScheduling(currentMovie)
+        holder.itemView.findNavController().navigate(action)
+      }
     }
   }
 
@@ -74,9 +75,11 @@ class MovieListAdapter() :
   fun changeData(movies: List<Movie>?) {
     movies ?: return
     if (listState.value is MovieListState.Refresh) {
-      movieList = ArrayList(movies)
+      if (movies.isEmpty()) {
+        movieList = ArrayList(movies)
+        notifyDataSetChanged()
+      }
       listState.value = MovieListState.Default
-      notifyDataSetChanged()
     } else {
       val last = itemCount - 1
       movieList.addAll(movies)

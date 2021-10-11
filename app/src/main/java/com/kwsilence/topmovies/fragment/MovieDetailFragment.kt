@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.kwsilence.topmovies.databinding.FragmentMovieDetailBinding
 import com.kwsilence.topmovies.util.DateFormatter
@@ -39,8 +41,9 @@ class MovieDetailFragment : Fragment() {
     binding.originalTitle.text = movie.originalTitle
     binding.voteCount.text = movie.voteCount.toString()
     binding.popularity.text = movie.popularity.toString()
-//    binding.scheduleButton.setOnClickListener {
-//      // TODO schedule
-//    }
+    binding.scheduleButton.setOnClickListener {
+      val action = MovieDetailFragmentDirections.detailToScheduling(movie)
+      findNavController().navigate(action)
+    }
   }
 }

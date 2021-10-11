@@ -1,7 +1,5 @@
 <resources>
   <string name="app_name">TopMovies</string>
-  <!-- TODO: Remove or change this placeholder text -->
-  <string name="hello_blank_fragment">Hello blank fragment</string>
 
   <string name="movie_list_fragment_label">Top Movies</string>
   <string name="movie_poster_description">movie_poster</string>
@@ -11,4 +9,6 @@
   <string name="detail_popularity">Popularity:</string>
   <string name="detail_original_language">Original language:</string>
   <string name="detail_original_title">Original title:</string>
+  <string name="scheduling_fragment_label">Scheduling</string>
+  <string name="submit_scheduling">submit</string>
 </resources>

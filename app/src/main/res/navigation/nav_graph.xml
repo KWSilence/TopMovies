@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+ <navigation xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/nav_graph"
@@ -13,12 +13,27 @@
     <action
       android:id="@+id/let_movie_detail"
       app:destination="@id/movieDetailFragment" />
+    <action
+      android:id="@+id/list_to_scheduling"
+      app:destination="@id/schedulingFragment" />
   </fragment>
   <fragment
     android:id="@+id/movieDetailFragment"
     android:name="com.kwsilence.topmovies.fragment.MovieDetailFragment"
     android:label="@string/movie_detail_fragment_label"
     tools:layout="@layout/fragment_movie_detail" >
+    <argument
+      android:name="movie"
+      app:argType="com.kwsilence.topmovies.model.Movie" />
+    <action
+      android:id="@+id/detail_to_scheduling"
+      app:destination="@id/schedulingFragment" />
+  </fragment>
+  <fragment
+    android:id="@+id/schedulingFragment"
+    android:name="com.kwsilence.topmovies.fragment.SchedulingFragment"
+    android:label="@string/scheduling_fragment_label"
+    tools:layout="@layout/fragment_scheduling" >
     <argument
       android:name="movie"
       app:argType="com.kwsilence.topmovies.model.Movie" />

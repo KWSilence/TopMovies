@@ -54,6 +54,13 @@ class MovieListFragment : Fragment() {
       }
     )
 
+    listAdapter.toggleList.observe(viewLifecycleOwner, { state ->
+      binding.listRefresh.isEnabled = !state
+      if (state && listAdapter.getScheduleCount() == 0) {
+        makeToast("No schedule yet")
+      }
+    })
+
     viewModel.lossConnection.observe(
       viewLifecycleOwner, { connection ->
         if (connection) {
@@ -74,13 +81,7 @@ class MovieListFragment : Fragment() {
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
-      R.id.toggle_list -> {
-        val toggleState = listAdapter.toggleLists()
-        binding.listRefresh.isEnabled = !toggleState
-        if (toggleState && listAdapter.getScheduleCount() == 0) {
-          makeToast("No schedule yet")
-        }
-      }
+      R.id.toggle_list -> listAdapter.toggleLists()
     }
     return super.onOptionsItemSelected(item)
   }

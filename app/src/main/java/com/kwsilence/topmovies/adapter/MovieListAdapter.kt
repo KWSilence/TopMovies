@@ -18,10 +18,10 @@ import com.kwsilence.topmovies.util.ImageLoader
 class MovieListAdapter :
   RecyclerView.Adapter<MovieListAdapter.MovieViewHolder>(), SwipeRefreshLayout.OnRefreshListener {
   val listState = MutableLiveData<MovieListState>(MovieListState.Default)
+  val toggleList: MutableLiveData<Boolean> = MutableLiveData(false)
   private var displayedList = ArrayList<Movie>()
   private var movieList = ArrayList<Movie>()
   private var scheduledList = ArrayList<Movie>()
-  private var toggleList = false
   private var defaultText: String? = null
 
   class MovieViewHolder(val binding: MovieRowBinding) : RecyclerView.ViewHolder(binding.root)
@@ -70,7 +70,7 @@ class MovieListAdapter :
     }
   }
 
-  override fun getItemCount(): Int = displayedList.size + if (toggleList) 0 else 1
+  override fun getItemCount(): Int = displayedList.size + if (toggleList.value == true) 0 else 1
 
   override fun onViewAttachedToWindow(holder: MovieViewHolder) {
     super.onViewAttachedToWindow(holder)
@@ -86,14 +86,14 @@ class MovieListAdapter :
   }
 
   override fun onRefresh() {
-    if (!toggleList) listState.value = MovieListState.Refresh
+    if (toggleList.value == false) listState.value = MovieListState.Refresh
   }
 
   fun changeData(movies: List<Movie>?) {
     movies ?: return
     val nMovies = dropPages(movies)
     setScheduledList(movies)
-    if (toggleList) {
+    if (toggleList.value == true) {
       movieList = ArrayList(nMovies)
       displayedList = scheduledList
       notifyDataSetChanged()
@@ -119,15 +119,16 @@ class MovieListAdapter :
     }
   }
 
-  fun toggleLists(): Boolean {
-    toggleList = !toggleList
-    displayedList = if (toggleList) {
+  fun toggleLists() {
+    val state = toggleList.value
+    state ?: return
+    displayedList = if (!state) {
       scheduledList
     } else {
       movieList
     }
     notifyDataSetChanged()
-    return toggleList
+    toggleList.value = !state
   }
 
   fun getScheduleCount(): Int = scheduledList.size

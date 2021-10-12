@@ -19,12 +19,16 @@ class MovieListAdapter() :
   RecyclerView.Adapter<MovieListAdapter.MovieViewHolder>(), SwipeRefreshLayout.OnRefreshListener {
   val listState = MutableLiveData<MovieListState>(MovieListState.Default)
   private var movieList = ArrayList<Movie>()
+  private var defaultText: String? = null
 
   class MovieViewHolder(val binding: MovieRowBinding) : RecyclerView.ViewHolder(binding.root)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     val binding = MovieRowBinding.inflate(inflater, parent, false)
+    if (defaultText == null) {
+      defaultText = binding.scheduleButton.text.toString()
+    }
     return MovieViewHolder(binding)
   }
 
@@ -46,6 +50,12 @@ class MovieListAdapter() :
       holder.binding.ratingValue.text = progress.toInt().toString()
       holder.binding.title.text = currentMovie.title
       holder.binding.release.text = DateFormatter.parse(currentMovie.releaseDate)
+      holder.binding.scheduleButton.text = if (currentMovie.schedule != null) {
+        currentMovie.schedule
+      } else {
+        defaultText
+      }
+
       holder.binding.root.setOnClickListener {
         val action = MovieListFragmentDirections.letMovieDetail(currentMovie)
         holder.itemView.findNavController().navigate(action)
@@ -74,16 +84,24 @@ class MovieListAdapter() :
 
   fun changeData(movies: List<Movie>?) {
     movies ?: return
-    if (listState.value is MovieListState.Refresh) {
-      if (movies.isEmpty()) {
+    when (listState.value) {
+      is MovieListState.Refresh -> {
+        movieList = ArrayList(movies)
+        notifyDataSetChanged()
+        listState.value = MovieListState.Default
+      }
+      is MovieListState.LoadMore -> {
+        val last = itemCount - 1
+        val addSize = movies.size - last
+        movieList.addAll(movies.subList(last, movies.size))
+        notifyItemRangeChanged(last, addSize)
+        listState.value = MovieListState.Default
+      }
+      is MovieListState.Default -> {
         movieList = ArrayList(movies)
         notifyDataSetChanged()
       }
-      listState.value = MovieListState.Default
-    } else {
-      val last = itemCount - 1
-      movieList.addAll(movies)
-      notifyItemRangeChanged(last, movies.size)
+      else -> return
     }
   }
 

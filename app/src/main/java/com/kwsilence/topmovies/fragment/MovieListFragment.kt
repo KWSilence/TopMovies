@@ -1,6 +1,7 @@
 package com.kwsilence.topmovies.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,16 +29,22 @@ class MovieListFragment : Fragment() {
     binding.movieList.adapter = listAdapter
     binding.listRefresh.setOnRefreshListener(listAdapter)
 
-    viewModel.movies.observe(viewLifecycleOwner, { listAdapter.changeData(it) })
+    viewModel.movies.observe(viewLifecycleOwner, {
+      Log.d("TopMovies", "onCreateView: change data")
+      listAdapter.changeData(it)
+    })
     listAdapter.listState.observe(
       viewLifecycleOwner, { state ->
         when (state) {
-          is MovieListState.LoadMore -> viewModel.loadMoreMovie()
+          is MovieListState.LoadMore -> {
+            Log.d("TopMovies", "onCreateView: load")
+            viewModel.loadMoreMovie()
+          }
           is MovieListState.Refresh -> {
+            Log.d("TopMovies", "onCreateView: refresh")
             binding.listRefresh.isRefreshing = false
             viewModel.refreshMovie()
           }
-          else -> viewModel.idle()
         }
       }
     )
@@ -50,6 +57,7 @@ class MovieListFragment : Fragment() {
             "Please, check internet connection.",
             Toast.LENGTH_SHORT
           ).show()
+          viewModel.messageShown()
         }
       }
     )

@@ -41,6 +41,8 @@ class MovieDetailFragment : Fragment() {
     binding.originalTitle.text = movie.originalTitle
     binding.voteCount.text = movie.voteCount.toString()
     binding.popularity.text = movie.popularity.toString()
+    movie.schedule?.let { binding.scheduleButton.text = it }
+
     binding.scheduleButton.setOnClickListener {
       val action = MovieDetailFragmentDirections.detailToScheduling(movie)
       findNavController().navigate(action)

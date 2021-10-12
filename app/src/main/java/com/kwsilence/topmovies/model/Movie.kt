@@ -27,5 +27,6 @@ data class Movie(
   @SerializedName("vote_count")
   val voteCount: Int,
 
-  var page: Int
+  var page: Int,
+  var schedule: String?
 ) : Parcelable

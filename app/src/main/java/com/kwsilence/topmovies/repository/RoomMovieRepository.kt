@@ -5,15 +5,30 @@ import com.kwsilence.topmovies.data.MovieDao
 import com.kwsilence.topmovies.model.Movie
 
 class RoomMovieRepository(private val dao: MovieDao) {
-  suspend fun addMovies(movies: List<Movie>) {
-    dao.addMovies(movies)
+  suspend fun addOrUpdateMovies(movies: List<Movie>) {
+    dao.addOrUpdateMovies(movies)
   }
 
-  fun readAllMovie(): LiveData<List<Movie>> = dao.readAllMovie()
+  suspend fun updateMovie(movie: Movie) {
+    dao.updateMovie(movie)
+  }
 
-  fun readMovieList(page: Int): List<Movie> = dao.readMovieList(page)
+  //  fun readMovieList(page: Int): List<Movie> = dao.readMovieList(page)
+  fun readAllMovies(): LiveData<List<Movie>> = dao.readAllMovie()
 
-  suspend fun deleteAllMovie() {
-    dao.deleteAllMovies()
+  fun getLastPage(): Int? = dao.getLastPage()
+
+  suspend fun deleteMovies() {
+    dao.deleteMovies()
+    dao.resetPages()
+  }
+
+  fun getMovie(id: Int): Movie? {
+    val movie = dao.getMovie(id)
+    return if (movie.isEmpty()) {
+      null
+    } else {
+      movie[0]
+    }
   }
 }

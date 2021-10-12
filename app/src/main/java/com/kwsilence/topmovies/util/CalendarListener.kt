@@ -1,19 +1,20 @@
 package com.kwsilence.topmovies.util
 
 import android.widget.CalendarView
+import java.util.Date
 
 class CalendarListener() : CalendarView.OnDateChangeListener {
   private var date = ""
 
-  fun getDate(): Long? {
+  fun getDate(): Date? {
     return try {
-      DateFormatter.format.parse(date).time
+      DateFormatter.format.parse(date)
     } catch (e: Exception) {
       null
     }
   }
 
   override fun onSelectedDayChange(view: CalendarView, year: Int, month: Int, dayOfMonth: Int) {
-    date = "$dayOfMonth.${month + 1}.$year"
+    date = "$year-${month + 1}-$dayOfMonth"
   }
 }

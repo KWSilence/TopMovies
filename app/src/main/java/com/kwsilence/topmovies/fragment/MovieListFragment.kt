@@ -57,11 +57,7 @@ class MovieListFragment : Fragment() {
     viewModel.lossConnection.observe(
       viewLifecycleOwner, { connection ->
         if (connection) {
-          Toast.makeText(
-            requireContext(),
-            "Please, check internet connection.",
-            Toast.LENGTH_SHORT
-          ).show()
+          makeToast("Please, check internet connection.")
           viewModel.messageShown()
         }
       }
@@ -78,8 +74,18 @@ class MovieListFragment : Fragment() {
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
-      R.id.toggle_list -> binding.listRefresh.isEnabled = !listAdapter.toggleLists()
+      R.id.toggle_list -> {
+        val toggleState = listAdapter.toggleLists()
+        binding.listRefresh.isEnabled = !toggleState
+        if (toggleState && listAdapter.getScheduleCount() == 0) {
+          makeToast("No schedule yet")
+        }
+      }
     }
     return super.onOptionsItemSelected(item)
+  }
+
+  private fun makeToast(msg: String) {
+    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
   }
 }

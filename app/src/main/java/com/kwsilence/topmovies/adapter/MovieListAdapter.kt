@@ -130,6 +130,8 @@ class MovieListAdapter :
     return toggleList
   }
 
+  fun getScheduleCount(): Int = scheduledList.size
+
   private fun setScheduledList(list: List<Movie>?) {
     list?.let {
       val schedule = it.filter { m -> m.schedule != null }.sortedBy { m -> m.schedule }

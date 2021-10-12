@@ -105,14 +105,14 @@ class SchedulingFragment : Fragment() {
             viewModel.deleteNotification(movie).subscribeOn(Schedulers.newThread())
               .observeOn(AndroidSchedulers.mainThread())
               .subscribe({
-                toastAndReturn("schedule closed")
+                toastAndReturn("notification deleted")
               }, { e ->
                 Log.e("TopMovies", "delete notification: ${e.localizedMessage}")
               })
           )
         }
         builder.setNegativeButton("No") { _, _ -> }
-        builder.setTitle("Close Notification?")
+        builder.setTitle("Delete Notification?")
         builder.setMessage("${movie.title}\n${movie.schedule}")
         builder.create().show()
       }
@@ -121,7 +121,7 @@ class SchedulingFragment : Fragment() {
   }
 
   private fun toastAndReturn(msg: String) {
-    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
     findNavController().popBackStack()
   }
 

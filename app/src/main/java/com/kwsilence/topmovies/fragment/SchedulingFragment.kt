@@ -1,8 +1,12 @@
 package com.kwsilence.topmovies.fragment
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -10,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.kwsilence.topmovies.R
 import com.kwsilence.topmovies.databinding.FragmentSchedulingBinding
 import com.kwsilence.topmovies.util.CalendarListener
 import com.kwsilence.topmovies.util.DateFormatter
@@ -41,8 +46,7 @@ class SchedulingFragment : Fragment() {
       viewModel.schedule(movie, time).subscribeOn(Schedulers.newThread())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe({
-          Toast.makeText(requireContext(), "scheduled: ${it.schedule}", Toast.LENGTH_SHORT).show()
-          findNavController().popBackStack()
+          toastAndReturn("scheduled: ${it.schedule}")
         }, {
           Log.e("TopMovies", "submit schedule: ${it.localizedMessage}")
         })
@@ -56,6 +60,7 @@ class SchedulingFragment : Fragment() {
         hour = DateFormatter.getTime(date, Calendar.HOUR_OF_DAY)
         minute = DateFormatter.getTime(date, Calendar.MINUTE)
       }
+      setHasOptionsMenu(true)
     }
     return binding.root
   }
@@ -78,5 +83,38 @@ class SchedulingFragment : Fragment() {
     } else {
       Date(date.time + time)
     }
+  }
+
+  override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    inflater.inflate(R.menu.menu_delete_notification, menu)
+    super.onCreateOptionsMenu(menu, inflater)
+  }
+
+  override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    when (item.itemId) {
+      R.id.delete_notification -> {
+        val movie = args.movie
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setPositiveButton("Yes") { _, _ ->
+          viewModel.deleteNotification(movie).subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+              toastAndReturn("schedule closed")
+            }, { e ->
+              Log.e("TopMovies", "delete notification: ${e.localizedMessage}")
+            })
+        }
+        builder.setNegativeButton("No") { _, _ -> }
+        builder.setTitle("Delete Notification")
+        builder.setMessage("${movie.title}\n${movie.schedule}")
+        builder.create().show()
+      }
+    }
+    return super.onOptionsItemSelected(item)
+  }
+
+  private fun toastAndReturn(msg: String) {
+    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+    findNavController().popBackStack()
   }
 }

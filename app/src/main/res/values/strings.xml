@@ -11,4 +11,6 @@
   <string name="detail_original_title">Original title:</string>
   <string name="scheduling_fragment_label">Scheduling</string>
   <string name="submit_scheduling">submit</string>
+  <string name="menu_toggle_list_title">Toggle list</string>
+  <string name="menu_delete_notification_title">Delete notification</string>
 </resources>

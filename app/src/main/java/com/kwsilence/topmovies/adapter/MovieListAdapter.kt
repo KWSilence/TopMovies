@@ -15,10 +15,13 @@ import com.kwsilence.topmovies.state.MovieListState
 import com.kwsilence.topmovies.util.DateFormatter
 import com.kwsilence.topmovies.util.ImageLoader
 
-class MovieListAdapter() :
+class MovieListAdapter :
   RecyclerView.Adapter<MovieListAdapter.MovieViewHolder>(), SwipeRefreshLayout.OnRefreshListener {
   val listState = MutableLiveData<MovieListState>(MovieListState.Default)
+  private var displayedList = ArrayList<Movie>()
   private var movieList = ArrayList<Movie>()
+  private var scheduledList = ArrayList<Movie>()
+  private var toggleList = false
   private var defaultText: String? = null
 
   class MovieViewHolder(val binding: MovieRowBinding) : RecyclerView.ViewHolder(binding.root)
@@ -33,11 +36,11 @@ class MovieListAdapter() :
   }
 
   override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-    if (position == movieList.size) {
+    if (position == displayedList.size) {
       holder.binding.loading.visibility = View.VISIBLE
       holder.binding.rowContent.visibility = View.GONE
     } else {
-      val currentMovie = movieList[position]
+      val currentMovie = displayedList[position]
 
       holder.binding.loading.visibility = View.GONE
       holder.binding.rowContent.visibility = View.VISIBLE
@@ -67,11 +70,11 @@ class MovieListAdapter() :
     }
   }
 
-  override fun getItemCount(): Int = movieList.size + 1
+  override fun getItemCount(): Int = displayedList.size + if (toggleList) 0 else 1
 
   override fun onViewAttachedToWindow(holder: MovieViewHolder) {
     super.onViewAttachedToWindow(holder)
-    if (holder.layoutPosition >= movieList.size) {
+    if (holder.layoutPosition >= displayedList.size) {
       Log.d("TopMovies", "load more!!!")
       listState.value = MovieListState.LoadMore
     } else {
@@ -82,30 +85,61 @@ class MovieListAdapter() :
     }
   }
 
-  fun changeData(movies: List<Movie>?) {
-    movies ?: return
-    when (listState.value) {
-      is MovieListState.Refresh -> {
-        movieList = ArrayList(movies)
-        notifyDataSetChanged()
-        listState.value = MovieListState.Default
-      }
-      is MovieListState.LoadMore -> {
-        val last = itemCount - 1
-        val addSize = movies.size - last
-        movieList.addAll(movies.subList(last, movies.size))
-        notifyItemRangeChanged(last, addSize)
-        listState.value = MovieListState.Default
-      }
-      is MovieListState.Default -> {
-        movieList = ArrayList(movies)
-        notifyDataSetChanged()
-      }
-      else -> return
+  override fun onRefresh() {
+    if (!toggleList) {
+      listState.value = MovieListState.Refresh
     }
   }
 
-  override fun onRefresh() {
-    listState.value = MovieListState.Refresh
+  fun changeData(movies: List<Movie>?) {
+    movies ?: return
+    val nMovies = dropPages(movies)
+    setScheduledList(movies)
+    if (toggleList) {
+      movieList = ArrayList(nMovies)
+      displayedList = scheduledList
+      notifyDataSetChanged()
+    } else {
+      nMovies ?: return
+      when (val state = listState.value) {
+        is MovieListState.Refresh, MovieListState.Default -> {
+          movieList = ArrayList(nMovies)
+          displayedList = movieList
+          notifyDataSetChanged()
+          if (state is MovieListState.Refresh) {
+            listState.value = MovieListState.Default
+          }
+        }
+        is MovieListState.LoadMore -> {
+          val last = itemCount - 1
+          val addSize = nMovies.size - last
+          movieList.addAll(nMovies.subList(last, nMovies.size))
+          displayedList = movieList
+          notifyItemRangeChanged(last, addSize)
+          listState.value = MovieListState.Default
+        }
+        else -> return
+      }
+    }
   }
+
+  fun toggleLists(): Boolean {
+    toggleList = !toggleList
+    displayedList = if (toggleList) {
+      scheduledList
+    } else {
+      movieList
+    }
+    notifyDataSetChanged()
+    return toggleList
+  }
+
+  private fun setScheduledList(list: List<Movie>?) {
+    list?.let {
+      val schedule = it.filter { m -> m.schedule != null }.sortedBy { m -> m.schedule }
+      scheduledList = ArrayList(schedule)
+    }
+  }
+
+  private fun dropPages(list: List<Movie>?): List<Movie>? = list?.filter { it.page > 0 }
 }

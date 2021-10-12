@@ -23,6 +23,10 @@ class RoomMovieRepository(private val dao: MovieDao) {
     dao.resetPages()
   }
 
+  suspend fun deleteMovie(movie: Movie) {
+    dao.deleteMovie(movie)
+  }
+
   fun getMovie(id: Int): Movie? {
     val movie = dao.getMovie(id)
     return if (movie.isEmpty()) {

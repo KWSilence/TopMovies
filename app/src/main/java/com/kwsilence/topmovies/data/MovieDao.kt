@@ -2,6 +2,7 @@ package com.kwsilence.topmovies.data
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
@@ -35,7 +36,8 @@ interface MovieDao {
     }
   }
 
-  @Query("select * from movie_table where page > 0 order by popularity desc")
+  //  @Query("select * from movie_table where page > 0 order by popularity desc")
+  @Query("select * from movie_table order by popularity desc")
   fun readAllMovie(): LiveData<List<Movie>>
 
   @Query("select * from movie_table where id = :id")
@@ -46,4 +48,7 @@ interface MovieDao {
 
   @Query("update movie_table set page = 0 where schedule is not null")
   suspend fun resetPages()
+
+  @Delete
+  suspend fun deleteMovie(movie: Movie)
 }

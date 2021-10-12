@@ -20,6 +20,7 @@ import com.kwsilence.topmovies.util.CalendarListener
 import com.kwsilence.topmovies.util.DateFormatter
 import com.kwsilence.topmovies.viewmodel.NotificationFragmentViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Calendar
 import java.util.Date
@@ -29,6 +30,7 @@ class SchedulingFragment : Fragment() {
   private val args: SchedulingFragmentArgs by navArgs()
   private lateinit var calendarListener: CalendarListener
   private val viewModel: NotificationFragmentViewModel by viewModels()
+  private val disposeBag = CompositeDisposable()
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -43,13 +45,15 @@ class SchedulingFragment : Fragment() {
     binding.time.setIs24HourView(true)
     binding.submitButton.setOnClickListener {
       val time = getDateTime()
-      viewModel.schedule(movie, time).subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({
-          toastAndReturn("scheduled: ${it.schedule}")
-        }, {
-          Log.e("TopMovies", "submit schedule: ${it.localizedMessage}")
-        })
+      disposeBag.add(
+        viewModel.schedule(movie, time).subscribeOn(Schedulers.newThread())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe({
+            toastAndReturn("scheduled: ${it.schedule}")
+          }, {
+            Log.e("TopMovies", "submit schedule: ${it.localizedMessage}")
+          })
+      )
     }
     val date = DateFormatter.parseSchedule(movie.schedule)
     if (date == null) {
@@ -79,7 +83,8 @@ class SchedulingFragment : Fragment() {
     val date = calendarListener.getDate()
     val time = DateFormatter.msHour(hour) + DateFormatter.msMinute(minute)
     return if (date == null) {
-      Date(DateFormatter.getOnlyDate(binding.date.date) + time)
+      val oDate = DateFormatter.getOnlyDate(binding.date.date) ?: Date()
+      Date(oDate.time + time)
     } else {
       Date(date.time + time)
     }
@@ -96,16 +101,18 @@ class SchedulingFragment : Fragment() {
         val movie = args.movie
         val builder = AlertDialog.Builder(requireContext())
         builder.setPositiveButton("Yes") { _, _ ->
-          viewModel.deleteNotification(movie).subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-              toastAndReturn("schedule closed")
-            }, { e ->
-              Log.e("TopMovies", "delete notification: ${e.localizedMessage}")
-            })
+          disposeBag.add(
+            viewModel.deleteNotification(movie).subscribeOn(Schedulers.newThread())
+              .observeOn(AndroidSchedulers.mainThread())
+              .subscribe({
+                toastAndReturn("schedule closed")
+              }, { e ->
+                Log.e("TopMovies", "delete notification: ${e.localizedMessage}")
+              })
+          )
         }
         builder.setNegativeButton("No") { _, _ -> }
-        builder.setTitle("Delete Notification")
+        builder.setTitle("Close Notification?")
         builder.setMessage("${movie.title}\n${movie.schedule}")
         builder.create().show()
       }
@@ -116,5 +123,10 @@ class SchedulingFragment : Fragment() {
   private fun toastAndReturn(msg: String) {
     Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
     findNavController().popBackStack()
+  }
+
+  override fun onDestroy() {
+    disposeBag.clear()
+    super.onDestroy()
   }
 }

@@ -38,5 +38,5 @@ object DateFormatter {
     return calendar.get(field)
   }
 
-  fun getOnlyDate(time: Long): Long = format.parse(format.format(time)).time
+  fun getOnlyDate(time: Long): Date? = format.parse(format.format(time))
 }

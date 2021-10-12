@@ -86,9 +86,7 @@ class MovieListAdapter :
   }
 
   override fun onRefresh() {
-    if (!toggleList) {
-      listState.value = MovieListState.Refresh
-    }
+    if (!toggleList) listState.value = MovieListState.Refresh
   }
 
   fun changeData(movies: List<Movie>?) {
@@ -103,8 +101,7 @@ class MovieListAdapter :
       nMovies ?: return
       when (val state = listState.value) {
         is MovieListState.Refresh, MovieListState.Default -> {
-          movieList = ArrayList(nMovies)
-          displayedList = movieList
+          setMovieList(nMovies)
           notifyDataSetChanged()
           if (state is MovieListState.Refresh) {
             listState.value = MovieListState.Default
@@ -113,8 +110,7 @@ class MovieListAdapter :
         is MovieListState.LoadMore -> {
           val last = itemCount - 1
           val addSize = nMovies.size - last
-          movieList.addAll(nMovies.subList(last, nMovies.size))
-          displayedList = movieList
+          setMovieList(nMovies)
           notifyItemRangeChanged(last, addSize)
           listState.value = MovieListState.Default
         }
@@ -139,6 +135,11 @@ class MovieListAdapter :
       val schedule = it.filter { m -> m.schedule != null }.sortedBy { m -> m.schedule }
       scheduledList = ArrayList(schedule)
     }
+  }
+
+  private fun setMovieList(list: List<Movie>) {
+    movieList = ArrayList(list)
+    displayedList = movieList
   }
 
   private fun dropPages(list: List<Movie>?): List<Movie>? = list?.filter { it.page > 0 }

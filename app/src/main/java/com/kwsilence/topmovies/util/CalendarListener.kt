@@ -3,7 +3,7 @@ package com.kwsilence.topmovies.util
 import android.widget.CalendarView
 import java.util.Date
 
-class CalendarListener() : CalendarView.OnDateChangeListener {
+class CalendarListener : CalendarView.OnDateChangeListener {
   private var date = ""
 
   fun getDate(): Date? {

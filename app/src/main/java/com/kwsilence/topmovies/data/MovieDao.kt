@@ -20,9 +20,6 @@ interface MovieDao {
   @Query("select max(page) from movie_table")
   fun getLastPage(): Int?
 
-//  @Query("select * from movie_table where page = :page order by popularity desc")
-//  fun readMovieList(page: Int): List<Movie>
-
   @Transaction
   suspend fun addOrUpdateMovies(movies: List<Movie>) {
     for (movie in movies) {
@@ -36,7 +33,6 @@ interface MovieDao {
     }
   }
 
-  //  @Query("select * from movie_table where page > 0 order by popularity desc")
   @Query("select * from movie_table order by popularity desc")
   fun readAllMovie(): LiveData<List<Movie>>
 

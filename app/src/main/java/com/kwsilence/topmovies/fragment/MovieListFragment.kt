@@ -49,6 +49,7 @@ class MovieListFragment : Fragment() {
             binding.listRefresh.isRefreshing = false
             viewModel.refreshMovie()
           }
+          else -> Unit
         }
       }
     )

@@ -13,7 +13,6 @@ class RoomMovieRepository(private val dao: MovieDao) {
     dao.updateMovie(movie)
   }
 
-  //  fun readMovieList(page: Int): List<Movie> = dao.readMovieList(page)
   fun readAllMovies(): LiveData<List<Movie>> = dao.readAllMovie()
 
   fun getLastPage(): Int? = dao.getLastPage()
@@ -25,14 +24,5 @@ class RoomMovieRepository(private val dao: MovieDao) {
 
   suspend fun deleteMovie(movie: Movie) {
     dao.deleteMovie(movie)
-  }
-
-  fun getMovie(id: Int): Movie? {
-    val movie = dao.getMovie(id)
-    return if (movie.isEmpty()) {
-      null
-    } else {
-      movie[0]
-    }
   }
 }

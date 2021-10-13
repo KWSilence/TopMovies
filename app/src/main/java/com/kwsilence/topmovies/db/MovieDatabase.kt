@@ -1,4 +1,4 @@
-package com.kwsilence.topmovies.data
+package com.kwsilence.topmovies.db
 
 import android.content.Context
 import androidx.room.Database

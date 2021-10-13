@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.kwsilence.topmovies.adapter.MovieListAdapter
-import com.kwsilence.topmovies.data.MovieDatabase
+import com.kwsilence.topmovies.db.MovieDatabase
 import com.kwsilence.topmovies.model.Movie
 import com.kwsilence.topmovies.repository.ApiMovieRepository
 import com.kwsilence.topmovies.repository.RoomMovieRepository
@@ -28,7 +28,7 @@ class MovieListViewModel(application: Application) : AndroidViewModel(applicatio
     RoomMovieRepository(MovieDatabase.getDatabase(application.applicationContext).movieDao())
 
   init {
-    movies = roomMovieRepository.readAllMovies()
+    movies = roomMovieRepository.readLiveMovies()
   }
 
   fun loadMoreMovie() {

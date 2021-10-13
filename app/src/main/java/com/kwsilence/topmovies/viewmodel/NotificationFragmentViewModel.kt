@@ -4,7 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.kwsilence.topmovies.data.MovieDatabase
+import com.kwsilence.topmovies.db.MovieDatabase
 import com.kwsilence.topmovies.model.Movie
 import com.kwsilence.topmovies.notification.NotificationScheduler
 import com.kwsilence.topmovies.repository.RoomMovieRepository

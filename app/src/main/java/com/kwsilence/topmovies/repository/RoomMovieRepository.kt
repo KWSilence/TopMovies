@@ -1,7 +1,7 @@
 package com.kwsilence.topmovies.repository
 
 import androidx.lifecycle.LiveData
-import com.kwsilence.topmovies.data.MovieDao
+import com.kwsilence.topmovies.db.MovieDao
 import com.kwsilence.topmovies.model.Movie
 
 class RoomMovieRepository(private val dao: MovieDao) {
@@ -9,17 +9,28 @@ class RoomMovieRepository(private val dao: MovieDao) {
     dao.addOrUpdateMovies(movies)
   }
 
+  suspend fun addMovie(movie: Movie) {
+    dao.addMovie(movie)
+  }
+
   suspend fun updateMovie(movie: Movie) {
     dao.updateMovie(movie)
   }
 
-  fun readAllMovies(): LiveData<List<Movie>> = dao.readAllMovie()
+  fun readLiveMovies(): LiveData<List<Movie>> = dao.readLiveMovies()
+
+  fun readAllMovies(): List<Movie> = dao.readAllMovies()
 
   fun getLastPage(): Int? = dao.getLastPage()
 
+  fun getMovie(id: Int): Movie? = dao.getMovie(id)
+
   suspend fun deleteMovies() {
     dao.deleteMovies()
-    dao.resetPages()
+  }
+
+  suspend fun deleteAll() {
+    dao.deleteAll()
   }
 
   suspend fun deleteMovie(movie: Movie) {

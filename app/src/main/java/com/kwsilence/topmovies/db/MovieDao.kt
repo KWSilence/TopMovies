@@ -1,4 +1,4 @@
-package com.kwsilence.topmovies.data
+package com.kwsilence.topmovies.db
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -24,26 +24,38 @@ interface MovieDao {
   suspend fun addOrUpdateMovies(movies: List<Movie>) {
     for (movie in movies) {
       val sMovie = getMovie(movie.id)
-      if (sMovie.isEmpty()) {
+      if (sMovie == null) {
         addMovie(movie)
       } else {
-        movie.schedule = sMovie[0].schedule
+        movie.schedule = sMovie.schedule
         updateMovie(movie)
       }
     }
   }
 
   @Query("select * from movie_table order by popularity desc")
-  fun readAllMovie(): LiveData<List<Movie>>
+  fun readLiveMovies(): LiveData<List<Movie>>
+
+  @Query("select * from movie_table order by popularity desc")
+  fun readAllMovies(): List<Movie>
 
   @Query("select * from movie_table where id = :id")
-  fun getMovie(id: Int): List<Movie>
+  fun getMovie(id: Int): Movie?
 
   @Query("delete from movie_table where schedule is null")
-  suspend fun deleteMovies()
+  suspend fun deleteNonScheduledMovies()
 
-  @Query("update movie_table set page = 0 where schedule is not null")
+  @Query("update movie_table set page = 0")
   suspend fun resetPages()
+
+  @Query("delete from movie_table")
+  suspend fun deleteAll()
+
+  @Transaction
+  suspend fun deleteMovies() {
+    deleteNonScheduledMovies()
+    resetPages()
+  }
 
   @Delete
   suspend fun deleteMovie(movie: Movie)

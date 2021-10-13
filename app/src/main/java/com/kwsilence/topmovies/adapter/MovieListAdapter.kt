@@ -18,10 +18,7 @@ import com.kwsilence.topmovies.util.ImageLoader
 class MovieListAdapter :
   RecyclerView.Adapter<MovieListAdapter.MovieViewHolder>(), SwipeRefreshLayout.OnRefreshListener {
   val listState = MutableLiveData<MovieListState>(MovieListState.Default)
-  val toggleList: MutableLiveData<Boolean> = MutableLiveData(false)
   private var displayedList = ArrayList<Movie>()
-  private var movieList = ArrayList<Movie>()
-  private var scheduledList = ArrayList<Movie>()
   private var defaultText: String? = null
 
   class MovieViewHolder(val binding: MovieRowBinding) : RecyclerView.ViewHolder(binding.root)
@@ -70,7 +67,7 @@ class MovieListAdapter :
     }
   }
 
-  override fun getItemCount(): Int = displayedList.size + if (toggleList.value == true) 0 else 1
+  override fun getItemCount(): Int = displayedList.size + 1
 
   override fun onViewAttachedToWindow(holder: MovieViewHolder) {
     super.onViewAttachedToWindow(holder)
@@ -86,64 +83,27 @@ class MovieListAdapter :
   }
 
   override fun onRefresh() {
-    if (toggleList.value == false) listState.value = MovieListState.Refresh
+    listState.value = MovieListState.Refresh
   }
 
   fun changeData(movies: List<Movie>?) {
     movies ?: return
-    val nMovies = dropPages(movies)
-    setScheduledList(movies)
-    if (toggleList.value == true) {
-      movieList = ArrayList(nMovies)
-      displayedList = scheduledList
-      notifyDataSetChanged()
-    } else {
-      nMovies ?: return
-      when (val state = listState.value) {
-        is MovieListState.Refresh, MovieListState.Default -> {
-          setMovieList(nMovies)
-          notifyDataSetChanged()
-          if (state is MovieListState.Refresh) {
-            listState.value = MovieListState.Default
-          }
-        }
-        is MovieListState.LoadMore -> {
-          val last = itemCount - 1
-          val addSize = nMovies.size - last
-          setMovieList(nMovies)
-          notifyItemRangeChanged(last, addSize)
+    when (val state = listState.value) {
+      is MovieListState.Refresh, MovieListState.Default -> {
+        displayedList = ArrayList(movies)
+        notifyDataSetChanged()
+        if (state is MovieListState.Refresh) {
           listState.value = MovieListState.Default
         }
-        else -> return
       }
+      is MovieListState.LoadMore -> {
+        val last = itemCount - 1
+        val addSize = movies.size - last
+        displayedList = ArrayList(movies)
+        notifyItemRangeChanged(last, addSize)
+        listState.value = MovieListState.Default
+      }
+      else -> return
     }
   }
-
-  fun toggleLists() {
-    val state = toggleList.value
-    state ?: return
-    displayedList = if (!state) {
-      scheduledList
-    } else {
-      movieList
-    }
-    notifyDataSetChanged()
-    toggleList.value = !state
-  }
-
-  fun getScheduleCount(): Int = scheduledList.size
-
-  private fun setScheduledList(list: List<Movie>?) {
-    list?.let {
-      val schedule = it.filter { m -> m.schedule != null }.sortedBy { m -> m.schedule }
-      scheduledList = ArrayList(schedule)
-    }
-  }
-
-  private fun setMovieList(list: List<Movie>) {
-    movieList = ArrayList(list)
-    displayedList = movieList
-  }
-
-  private fun dropPages(list: List<Movie>?): List<Movie>? = list?.filter { it.page > 0 }
 }

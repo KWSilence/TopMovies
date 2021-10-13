@@ -32,26 +32,26 @@ class MovieListViewModel(application: Application) : AndroidViewModel(applicatio
   }
 
   fun loadMoreMovie() {
-    val mPage = mutablePage.value
+    val mPage = mutablePage.value?.plus(1)
     mPage ?: return
     viewModelScope.launch(Dispatchers.Default) {
       try {
         Log.d("TopMovies", "page: $mPage")
         val lPage = roomMovieRepository.getLastPage()
-        if (lPage != null && lPage > mPage) {
-          setPage(mPage + 1)
+        if (lPage != null && lPage >= mPage) {
+          Log.d("TopMovies", "loadFrom: DB")
+          setPage(mPage)
         } else {
           if (InternetChecker.checkInternetConnection()) {
+            Log.d("TopMovies", "loadFrom: API")
             val response = apiMovieRepository.getPopularMovies(mPage).awaitResponse()
             if (response.isSuccessful) {
-              val res = response.body()?.results
-              res?.let { list ->
-                for (m in list) {
+              response.body()?.results?.let { res ->
+                for (m in res) {
                   m.page = mPage
                 }
-                val nList = list.toList()
-                roomMovieRepository.addOrUpdateMovies(nList)
-                setPage(mPage + 1)
+                roomMovieRepository.addOrUpdateMovies(res.toList())
+                setPage(mPage)
               }
             }
           } else {

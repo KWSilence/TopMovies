@@ -3,15 +3,11 @@ package com.kwsilence.topmovies.fragment
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.kwsilence.topmovies.R
 import com.kwsilence.topmovies.adapter.MovieListAdapter
 import com.kwsilence.topmovies.databinding.FragmentMovieListBinding
 import com.kwsilence.topmovies.state.MovieListState
@@ -37,6 +33,7 @@ class MovieListFragment : Fragment() {
       Log.d("TopMovies", "onCreateView: change data")
       listAdapter.changeData(it)
     })
+
     listAdapter.listState.observe(
       viewLifecycleOwner, { state ->
         when (state) {
@@ -54,13 +51,6 @@ class MovieListFragment : Fragment() {
       }
     )
 
-    listAdapter.toggleList.observe(viewLifecycleOwner, { state ->
-      binding.listRefresh.isEnabled = !state
-      if (state && listAdapter.getScheduleCount() == 0) {
-        makeToast("No schedule yet")
-      }
-    })
-
     viewModel.lossConnection.observe(
       viewLifecycleOwner, { connection ->
         if (connection) {
@@ -70,20 +60,7 @@ class MovieListFragment : Fragment() {
       }
     )
 
-    setHasOptionsMenu(true)
     return binding.root
-  }
-
-  override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-    inflater.inflate(R.menu.menu_toggle_list, menu)
-    super.onCreateOptionsMenu(menu, inflater)
-  }
-
-  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    when (item.itemId) {
-      R.id.toggle_list -> listAdapter.toggleLists()
-    }
-    return super.onOptionsItemSelected(item)
   }
 
   private fun makeToast(msg: String) {

@@ -6,14 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.kwsilence.topmovies.adapter.MovieListAdapter
+import com.kwsilence.topmovies.adapter.pager.TitledFragment
 import com.kwsilence.topmovies.databinding.FragmentMovieListBinding
 import com.kwsilence.topmovies.state.MovieListState
 import com.kwsilence.topmovies.viewmodel.MovieListViewModel
 
-class MovieListFragment : Fragment() {
+class MovieListFragment(title: String) : TitledFragment(title) {
   private val viewModel: MovieListViewModel by viewModels()
   private lateinit var binding: FragmentMovieListBinding
   private lateinit var listAdapter: MovieListAdapter

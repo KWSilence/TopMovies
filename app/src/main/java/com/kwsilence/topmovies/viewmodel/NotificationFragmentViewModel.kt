@@ -3,7 +3,9 @@ package com.kwsilence.topmovies.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.kwsilence.topmovies.adapter.ScheduledListAdapter
 import com.kwsilence.topmovies.db.MovieDatabase
 import com.kwsilence.topmovies.model.Movie
 import com.kwsilence.topmovies.notification.NotificationScheduler
@@ -17,8 +19,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class NotificationFragmentViewModel(application: Application) : AndroidViewModel(application) {
+  val listAdapter by lazy { ScheduledListAdapter() }
+  val scheduledMovies: LiveData<List<Movie>>
   private val roomMovieRepository =
     RoomMovieRepository(MovieDatabase.getDatabase(application.applicationContext).movieDao())
+
+  init {
+    scheduledMovies = roomMovieRepository.readLiveSchedule()
+  }
 
   fun schedule(movie: Movie, time: Date): Single<Movie> = Single.create { sub ->
     viewModelScope.launch(Dispatchers.IO) {

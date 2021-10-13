@@ -13,4 +13,8 @@
   <string name="submit_scheduling">submit</string>
   <string name="menu_toggle_list_title">Toggle list</string>
   <string name="menu_delete_notification_title">Delete notification</string>
+  <string name="nothing_to_show_message">No scheduled movies</string>
+  <string name="tab_movie_list">Top Movies</string>
+  <string name="tab_scheduled_list">Scheduled Movies</string>
+  <string name="main_fragment_label">Home</string>
 </resources>

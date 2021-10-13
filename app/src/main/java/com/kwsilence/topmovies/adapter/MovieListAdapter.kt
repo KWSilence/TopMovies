@@ -9,7 +9,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.kwsilence.topmovies.databinding.MovieRowBinding
-import com.kwsilence.topmovies.fragment.MovieListFragmentDirections
+import com.kwsilence.topmovies.fragment.MainFragmentDirections
 import com.kwsilence.topmovies.model.Movie
 import com.kwsilence.topmovies.state.MovieListState
 import com.kwsilence.topmovies.util.DateFormatter
@@ -57,11 +57,11 @@ class MovieListAdapter :
       }
 
       holder.binding.root.setOnClickListener {
-        val action = MovieListFragmentDirections.letMovieDetail(currentMovie)
+        val action = MainFragmentDirections.letMovieDetail(currentMovie)
         holder.itemView.findNavController().navigate(action)
       }
       holder.binding.scheduleButton.setOnClickListener {
-        val action = MovieListFragmentDirections.listToScheduling(currentMovie)
+        val action = MainFragmentDirections.listToScheduling(currentMovie)
         holder.itemView.findNavController().navigate(action)
       }
     }

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.viewModelScope
 import com.kwsilence.topmovies.adapter.MovieListAdapter
 import com.kwsilence.topmovies.db.MovieDatabase
@@ -19,42 +20,42 @@ import retrofit2.awaitResponse
 
 class MovieListViewModel(application: Application) : AndroidViewModel(application) {
   val listAdapter by lazy { MovieListAdapter() }
-
   val movies: LiveData<List<Movie>>
   val lossConnection: MutableLiveData<Boolean> = MutableLiveData(false)
-  private var page = 1
+  private val mutablePage: MutableLiveData<Int> = MutableLiveData(0)
   private val apiMovieRepository = ApiMovieRepository()
   private val roomMovieRepository =
     RoomMovieRepository(MovieDatabase.getDatabase(application.applicationContext).movieDao())
 
   init {
-    movies = roomMovieRepository.readLiveMovies()
+    movies = Transformations.switchMap(mutablePage) { p -> roomMovieRepository.readLivePages(p) }
   }
 
   fun loadMoreMovie() {
+    val mPage = mutablePage.value
+    mPage ?: return
     viewModelScope.launch(Dispatchers.Default) {
       try {
-        Log.d("TopMovies", "page: $page")
+        Log.d("TopMovies", "page: $mPage")
         val lPage = roomMovieRepository.getLastPage()
-        if (lPage != null && lPage > page) {
-          page = lPage
-        }
-        if (InternetChecker.checkInternetConnection()) {
-          val response = apiMovieRepository.getPopularMovies(page).awaitResponse()
-          if (response.isSuccessful) {
-            val res = response.body()?.results
-            res?.let { list ->
-              for (m in list) {
-                m.page = page
-              }
-              val nList = list.toList()
-              ++page
-              roomMovieRepository.addOrUpdateMovies(nList)
-            }
-          }
+        if (lPage != null && lPage > mPage) {
+          setPage(mPage + 1)
         } else {
-          withContext(Dispatchers.Main) {
-            lossConnection.value = true
+          if (InternetChecker.checkInternetConnection()) {
+            val response = apiMovieRepository.getPopularMovies(mPage).awaitResponse()
+            if (response.isSuccessful) {
+              val res = response.body()?.results
+              res?.let { list ->
+                for (m in list) {
+                  m.page = mPage
+                }
+                val nList = list.toList()
+                roomMovieRepository.addOrUpdateMovies(nList)
+                setPage(mPage + 1)
+              }
+            }
+          } else {
+            lossConnect(true)
           }
         }
       } catch (e: Exception) {
@@ -67,7 +68,7 @@ class MovieListViewModel(application: Application) : AndroidViewModel(applicatio
     if (InternetChecker.checkInternetConnection()) {
       viewModelScope.launch {
         roomMovieRepository.deleteMovies()
-        page = 1
+        setPage(0)
       }
     } else {
       lossConnection.value = true
@@ -76,5 +77,17 @@ class MovieListViewModel(application: Application) : AndroidViewModel(applicatio
 
   fun messageShown() {
     lossConnection.value = false
+  }
+
+  private suspend fun setPage(page: Int) {
+    withContext(Dispatchers.Main) {
+      mutablePage.value = page
+    }
+  }
+
+  private suspend fun lossConnect(isLoss: Boolean) {
+    withContext(Dispatchers.Main) {
+      lossConnection.value = isLoss
+    }
   }
 }

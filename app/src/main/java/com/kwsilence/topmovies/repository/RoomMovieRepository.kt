@@ -17,7 +17,9 @@ class RoomMovieRepository(private val dao: MovieDao) {
     dao.updateMovie(movie)
   }
 
-  fun readLiveMovies(): LiveData<List<Movie>> = dao.readLiveMovies()
+  fun readLivePages(page: Int): LiveData<List<Movie>> = dao.readLivePages(page)
+
+  fun readLiveSchedule(): LiveData<List<Movie>> = dao.readLiveSchedule()
 
   fun readAllMovies(): List<Movie> = dao.readAllMovies()
 

@@ -17,18 +17,15 @@ import com.kwsilence.topmovies.util.ImageLoader
 
 class MovieListAdapter :
   RecyclerView.Adapter<MovieListAdapter.MovieViewHolder>(), SwipeRefreshLayout.OnRefreshListener {
-  val listState = MutableLiveData<MovieListState>(MovieListState.Default)
+  val listState = MutableLiveData(MovieListState.Default)
   private var displayedList = ArrayList<Movie>()
-  private var defaultText: String? = null
+  private var defaultText: String = ""
 
   class MovieViewHolder(val binding: MovieRowBinding) : RecyclerView.ViewHolder(binding.root)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     val binding = MovieRowBinding.inflate(inflater, parent, false)
-    if (defaultText == null) {
-      defaultText = binding.scheduleButton.text.toString()
-    }
     return MovieViewHolder(binding)
   }
 
@@ -75,7 +72,7 @@ class MovieListAdapter :
       Log.d("TopMovies", "load more!!!")
       listState.value = MovieListState.LoadMore
     } else {
-      if (listState.value is MovieListState.LoadMore) {
+      if (listState.value == MovieListState.LoadMore) {
         Log.d("TopMovies", "stop loading")
         listState.value = MovieListState.Default
       }
@@ -89,14 +86,14 @@ class MovieListAdapter :
   fun changeData(movies: List<Movie>?) {
     movies ?: return
     when (val state = listState.value) {
-      is MovieListState.Refresh, MovieListState.Default -> {
+      MovieListState.Refresh, MovieListState.Default -> {
         displayedList = ArrayList(movies)
         notifyDataSetChanged()
-        if (state is MovieListState.Refresh) {
+        if (state == MovieListState.Refresh) {
           listState.value = MovieListState.Default
         }
       }
-      is MovieListState.LoadMore -> {
+      MovieListState.LoadMore -> {
         val last = itemCount - 1
         val addSize = movies.size - last
         displayedList = ArrayList(movies)
@@ -105,5 +102,9 @@ class MovieListAdapter :
       }
       else -> return
     }
+  }
+
+  fun setDefaultScheduleText(txt: String) {
+    defaultText = txt
   }
 }

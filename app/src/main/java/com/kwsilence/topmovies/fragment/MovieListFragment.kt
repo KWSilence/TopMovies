@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import com.kwsilence.topmovies.R
 import com.kwsilence.topmovies.adapter.MovieListAdapter
 import com.kwsilence.topmovies.adapter.pager.TitledFragment
 import com.kwsilence.topmovies.databinding.FragmentMovieListBinding
@@ -28,6 +29,7 @@ class MovieListFragment(title: String) : TitledFragment(title) {
     listAdapter = viewModel.listAdapter
     binding.movieList.adapter = listAdapter
     binding.listRefresh.setOnRefreshListener(listAdapter)
+    listAdapter.setDefaultScheduleText(getString(R.string.schedule_watching))
 
     viewModel.movies.observe(viewLifecycleOwner, {
       Log.d("TopMovies", "onCreateView: change data")
@@ -37,11 +39,11 @@ class MovieListFragment(title: String) : TitledFragment(title) {
     listAdapter.listState.observe(
       viewLifecycleOwner, { state ->
         when (state) {
-          is MovieListState.LoadMore -> {
+          MovieListState.LoadMore -> {
             Log.d("TopMovies", "onCreateView: load")
             viewModel.loadMoreMovie()
           }
-          is MovieListState.Refresh -> {
+          MovieListState.Refresh -> {
             Log.d("TopMovies", "onCreateView: refresh")
             binding.listRefresh.isRefreshing = false
             viewModel.refreshMovie()

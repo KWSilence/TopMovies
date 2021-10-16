@@ -33,7 +33,7 @@ interface MovieDao {
     }
   }
 
-  @Query("select * from movie_table where page > 0 and page <= :page order by popularity desc")
+  @Query("select * from movie_table where page > 0 and page <= :page order by page asc, popularity desc")
   fun readLivePages(page: Int): LiveData<List<Movie>>
 
   @Query("select * from movie_table where schedule is not null order by schedule")

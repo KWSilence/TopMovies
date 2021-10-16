@@ -95,7 +95,7 @@
       <TextView
         android:id="@+id/overview"
         android:layout_width="match_parent"
-        android:layout_height="0sp"
+        android:layout_height="wrap_content"
         android:layout_marginVertical="5sp"
         android:ellipsize="end"
         android:maxLines="5"

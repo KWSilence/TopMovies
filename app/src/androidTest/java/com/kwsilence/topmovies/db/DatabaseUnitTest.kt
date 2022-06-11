@@ -7,7 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.kwsilence.topmovies.model.Movie
 import com.kwsilence.topmovies.repository.RoomMovieRepository
 import java.io.IOException
-import kotlin.jvm.Throws
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert

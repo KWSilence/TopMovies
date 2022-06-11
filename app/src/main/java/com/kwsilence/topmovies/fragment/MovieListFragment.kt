@@ -5,67 +5,69 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.kwsilence.topmovies.R
 import com.kwsilence.topmovies.adapter.MovieListAdapter
-import com.kwsilence.topmovies.adapter.pager.TitledFragment
 import com.kwsilence.topmovies.databinding.FragmentMovieListBinding
 import com.kwsilence.topmovies.state.MovieListState
+import com.kwsilence.topmovies.util.toast
 import com.kwsilence.topmovies.viewmodel.MovieListViewModel
 
-class MovieListFragment(title: String) : TitledFragment(title) {
+class MovieListFragment : Fragment() {
   private val viewModel: MovieListViewModel by viewModels()
-  private lateinit var binding: FragmentMovieListBinding
-  private lateinit var listAdapter: MovieListAdapter
+  private var _binding: FragmentMovieListBinding? = null
+  private val binding get() = _binding!!
+  private var _listAdapter: MovieListAdapter? = null
+  private val listAdapter get() = _listAdapter!!
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    binding = FragmentMovieListBinding.inflate(inflater, container, false)
+    _binding = FragmentMovieListBinding.inflate(inflater, container, false)
+    return binding.root
+  }
 
-    listAdapter = viewModel.listAdapter
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    _listAdapter = viewModel.listAdapter
     binding.movieList.adapter = listAdapter
     binding.listRefresh.setOnRefreshListener(listAdapter)
     listAdapter.setDefaultScheduleText(getString(R.string.schedule_watching))
 
-    viewModel.movies.observe(viewLifecycleOwner, {
+    viewModel.movies.observe(viewLifecycleOwner) {
       Log.d("TopMovies", "onCreateView: change data")
       listAdapter.changeData(it)
-    })
+    }
 
-    listAdapter.listState.observe(
-      viewLifecycleOwner, { state ->
-        when (state) {
-          MovieListState.LoadMore -> {
-            Log.d("TopMovies", "onCreateView: load")
-            viewModel.loadMoreMovie()
-          }
-          MovieListState.Refresh -> {
-            Log.d("TopMovies", "onCreateView: refresh")
-            binding.listRefresh.isRefreshing = false
-            viewModel.refreshMovie()
-          }
-          else -> Unit
+    listAdapter.listState.observe(viewLifecycleOwner) { state ->
+      when (state) {
+        MovieListState.LoadMore -> {
+          Log.d("TopMovies", "onCreateView: load")
+          viewModel.loadMoreMovie()
         }
-      }
-    )
-
-    viewModel.lossConnection.observe(
-      viewLifecycleOwner, { connection ->
-        if (connection) {
-          makeToast("Please, check internet connection.")
-          viewModel.messageShown()
+        MovieListState.Refresh -> {
+          Log.d("TopMovies", "onCreateView: refresh")
+          binding.listRefresh.isRefreshing = false
+          viewModel.refreshMovie()
         }
+        else -> Unit
       }
-    )
+    }
 
-    return binding.root
+    viewModel.lossConnection.observe(viewLifecycleOwner) { connection ->
+      if (connection) {
+        requireContext().toast("Please, check internet connection.")
+        viewModel.messageShown()
+      }
+    }
   }
 
-  private fun makeToast(msg: String) {
-    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+  override fun onDestroy() {
+    super.onDestroy()
+    _binding = null
+    _listAdapter = null
   }
 }

@@ -7,14 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
-import com.kwsilence.topmovies.R
 import com.kwsilence.topmovies.adapter.pager.TabViewPagerAdapter
-import com.kwsilence.topmovies.adapter.pager.TitledFragment
 import com.kwsilence.topmovies.databinding.FragmentMainBinding
 import com.kwsilence.topmovies.viewmodel.MainFragmentViewModel
 
 class MainFragment : Fragment() {
-  private lateinit var binding: FragmentMainBinding
+  private var _binding: FragmentMainBinding? = null
+  private val binding get() = _binding!!
   private val viewModel: MainFragmentViewModel by viewModels()
   private lateinit var adapter: TabViewPagerAdapter
 
@@ -23,25 +22,27 @@ class MainFragment : Fragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    binding = FragmentMainBinding.inflate(inflater, container, false)
-    initAppViewPagerAdapter()
-    binding.viewPager.adapter = adapter
-    TabLayoutMediator(binding.tabLayout, binding.viewPager, adapter).attach()
+    _binding = FragmentMainBinding.inflate(inflater, container, false)
     return binding.root
   }
 
-  private fun initAppViewPagerAdapter() {
-    if (!viewModel.isFilled()) {
-      val list = ArrayList<TitledFragment>()
-      list.add(MovieListFragment(getString(R.string.tab_movie_list)))
-      list.add(ScheduledListFragment(getString(R.string.tab_scheduled_list)))
-      viewModel.fillFragments(list)
-    }
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    initAppViewPagerAdapter()
+    binding.viewPager.adapter = adapter
+    TabLayoutMediator(binding.tabLayout, binding.viewPager, adapter).attach()
+  }
 
+  private fun initAppViewPagerAdapter() {
     adapter = TabViewPagerAdapter(
       requireActivity().supportFragmentManager,
       lifecycle,
-      viewModel.fragments
+      viewModel.getFragments(requireContext())
     )
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    _binding = null
   }
 }

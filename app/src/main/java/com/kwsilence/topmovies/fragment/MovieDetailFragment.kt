@@ -13,7 +13,8 @@ import com.kwsilence.topmovies.util.ImageLoader
 
 class MovieDetailFragment : Fragment() {
 
-  private lateinit var binding: FragmentMovieDetailBinding
+  private var _binding: FragmentMovieDetailBinding? = null
+  private val binding get() = _binding!!
   private val args: MovieDetailFragmentArgs by navArgs()
 
   override fun onCreateView(
@@ -21,7 +22,7 @@ class MovieDetailFragment : Fragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    binding = FragmentMovieDetailBinding.inflate(inflater, container, false)
+    _binding = FragmentMovieDetailBinding.inflate(inflater, container, false)
     return binding.root
   }
 
@@ -30,21 +31,27 @@ class MovieDetailFragment : Fragment() {
     val movie = args.movie
 
     ImageLoader.setImage(binding.poster, movie.posterPath)
-    binding.overview.text = movie.overview
     val progress: Double = movie.voteAverage * 10
-    binding.rating.progress = progress.toFloat()
-    binding.ratingValue.text = progress.toInt().toString()
-    binding.title.text = movie.title
-    binding.release.text = DateFormatter.parse(movie.releaseDate)
-    binding.lang.text = movie.originalLang
-    binding.originalTitle.text = movie.originalTitle
-    binding.voteCount.text = movie.voteCount.toString()
-    binding.popularity.text = movie.popularity.toString()
-    movie.schedule?.let { binding.scheduleButton.text = it }
-
-    binding.scheduleButton.setOnClickListener {
-      val action = MovieDetailFragmentDirections.detailToScheduling(movie)
-      findNavController().navigate(action)
+    binding.apply {
+      overview.text = movie.overview
+      rating.progress = progress.toFloat()
+      ratingValue.text = progress.toInt().toString()
+      title.text = movie.title
+      release.text = DateFormatter.parse(movie.releaseDate)
+      lang.text = movie.originalLang
+      originalTitle.text = movie.originalTitle
+      voteCount.text = movie.voteCount.toString()
+      popularity.text = movie.popularity.toString()
+      movie.schedule?.let { scheduleButton.text = it }
+      scheduleButton.setOnClickListener {
+        val action = MovieDetailFragmentDirections.detailToScheduling(movie)
+        findNavController().navigate(action)
+      }
     }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    _binding = null
   }
 }

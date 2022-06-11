@@ -25,24 +25,29 @@ class ScheduledListAdapter : RecyclerView.Adapter<ScheduledListAdapter.ScheduleV
   }
 
   override fun onBindViewHolder(holder: ScheduleViewHolder, position: Int) {
-    if (displayedList.size == 0) {
-      holder.binding.scheduleControlBlock.visibility = View.GONE
-      holder.binding.title.text = nothingToShowText
-    } else {
-      holder.binding.scheduleControlBlock.visibility = View.VISIBLE
-      val movie = displayedList[position]
-      holder.binding.title.text = movie.title
-      holder.binding.scheduleButton.text = movie.schedule
-      holder.binding.root.setOnClickListener {
-        val action = MainFragmentDirections.letMovieDetail(movie)
-        holder.itemView.findNavController().navigate(action)
-      }
-      holder.binding.scheduleButton.setOnClickListener {
-        val action = MainFragmentDirections.listToScheduling(movie)
-        holder.itemView.findNavController().navigate(action)
-      }
-      holder.binding.deleteButton.setOnClickListener {
-        notificationToDelete.value = movie
+    holder.binding.apply {
+      when (displayedList.size) {
+        0 -> {
+          scheduleControlBlock.visibility = View.GONE
+          title.text = nothingToShowText
+        }
+        else -> {
+          scheduleControlBlock.visibility = View.VISIBLE
+          val movie = displayedList[position]
+          title.text = movie.title
+          scheduleButton.text = movie.schedule
+          root.setOnClickListener {
+            val action = MainFragmentDirections.letMovieDetail(movie)
+            holder.itemView.findNavController().navigate(action)
+          }
+          scheduleButton.setOnClickListener {
+            val action = MainFragmentDirections.listToScheduling(movie)
+            holder.itemView.findNavController().navigate(action)
+          }
+          deleteButton.setOnClickListener {
+            notificationToDelete.value = movie
+          }
+        }
       }
     }
   }
